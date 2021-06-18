@@ -1,0 +1,231 @@
+---
+title: "Exploratory Data Analysis: Hockey"
+author: 
+  - "Nicole Tucker"
+  - "Ruby Wu"
+  - "Tej Seth"
+date: 'June 17th, 2021'
+output:
+  xaringan::moon_reader:
+    css: xaringan-themer.css
+    nature:
+      slideNumberFormat: "%current%"
+      highlightStyle: github
+      highlightLines: true
+      ratio: 16:9
+      countIncrementalSlides: true
+---
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+style_mono_accent(base_color = "#2d8dd6")
+```
+
+## The Moneypuck Dataset
+
+```{r load-packages, warning = FALSE, message = FALSE, echo = FALSE}
+library(tidyverse)
+library(ggthemes)
+library(ggridges)
+library(flexclust)
+library(ggdendro)
+
+theme_reach <- function() {
+  theme_fivethirtyeight() +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(size = 20, hjust = 0.5, face = "bold"),
+      plot.subtitle = element_text(size = 12, hjust = 0.5),
+      axis.title.x = element_text(size=16),
+      axis.title.y = element_text(size=16)
+    )
+}
+```
+
+Loaded in a dataset of all the shots in the 2021 Stanley Cup Playoffs from [`moneypuck`](http://www.stat.cmu.edu/cmsac/sure/2021/materials/data/xy_examples/moneypuck_shots_2020.csv)
+
+```{r load-data, warning = FALSE, message = FALSE, echo = FALSE}
+library(tidyverse)
+playoff_shot_data <- read_csv("http://www.stat.cmu.edu/cmsac/sure/2021/materials/data/xy_examples/moneypuck_shots_2020.csv") %>%
+  dplyr::filter(isPlayoffGame == 1)
+```
+
+```{r clean-data, warning = FALSE, message = FALSE, echo = FALSE}
+# Now only select columns to work with for this task:
+playoff_shot_data <- playoff_shot_data %>%
+  dplyr::select(# Player info attempting the shot
+    shooterPlayerId, shooterName, team, shooterLeftRight, 
+    shooterTimeOnIce, shooterTimeOnIceSinceFaceoff,
+    # Info about the shot:
+    event, location, shotType, shotAngle, shotAnglePlusRebound, 
+    shotDistance, shotOnEmptyNet, shotRebound, shotRush, 
+    shotWasOnGoal, shotGeneratedRebound, shotGoalieFroze,
+    # Adjusted for arena locations
+    arenaAdjustedShotDistance, 
+    arenaAdjustedXCord, arenaAdjustedYCord,
+    # Goalie info:
+    goalieIdForShot, goalieNameForShot,
+    # Team context
+    teamCode, isHomeTeam, homeSkatersOnIce, awaySkatersOnIce,
+    # Game context
+    game_id, homeTeamCode, awayTeamCode, homeTeamGoals,
+    awayTeamGoals, time, period)
+```
+* There's 36 columns of 5,121 shots taken
+
+* Each row and observation is a singular shot taken during the 2021 Stanley Cup Playoffs
+
+* Categorical variables: shooterName, event, shotGeneratedRebound
+
+* Continuous variables: shooterTimeOnIce, shotAngle, shotDistance, tim
+
+```{r display-data, warning = FALSE, message = FALSE, echo = FALSE}
+library(gt)
+playoff_shot_data %>% slice_head(n = 5) %>% select(shooterName, shooterTimeOnIce, event, shotType, shotAngle, shotDistance, teamCode, time, period) %>% gt()
+```
+---
+
+### Player's Shoot Mostly Between 16 and 42 Seconds On Ice
+
+```{r graph-1, fig.height=6.5, fig.width = 14, echo = FALSE, fig.align='center'}
+playoff_shot_data %>%
+  filter(shooterTimeOnIce <= 150) %>%
+  ggplot(aes(x = shooterTimeOnIce)) +
+  geom_density(fill = "darkorange", alpha = 0.8) +
+  geom_vline(xintercept = quantile(playoff_shot_data$shooterTimeOnIce,0.25), linetype = "dashed") +
+  geom_vline(xintercept = quantile(playoff_shot_data$shooterTimeOnIce,0.50), linetype = "dashed") +
+  geom_vline(xintercept = quantile(playoff_shot_data$shooterTimeOnIce,0.75), linetype = "dashed") +
+  annotate("text", x = 14.5, y = 0.0023, label = "25th percentile", angle = 90) +
+  annotate("text", x = 40.5, y = 0.0023, label = "75th percentile", angle = 90) +
+  theme_reach() +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  labs(x = "Player's Time on Ice",
+       y = "Density")
+```
+
+---
+
+### Shots Closer to the Goal Generate More Rebounds
+
+```{r graph-2, fig.height=6.5, fig.width = 14, echo = FALSE, fig.align='center'}
+playoff_shot_data %>%
+  ggplot(aes(x = arenaAdjustedShotDistance, color = as.factor(shotGeneratedRebound))) +
+  stat_ecdf(size = 1.5) +
+  theme_reach() +
+  scale_color_manual("Shot Generated Rebound",values=c("darkorange","darkblue")) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  geom_hline(yintercept = 0.50, linetype = "dashed", color = "red") +
+  labs(x = "Arena Adjusted Shot Distance",
+       y = "Percent of Rebounds",
+       fill = "Shot Generated Rebound") +
+  theme(legend.position = "bottom")
+```
+
+---
+
+### How Time and Periods Affect Event Outcomes
+
+```{r graph-3, fig.height=6.5, fig.width = 14, echo = FALSE, fig.align='center'}
+playoff_shot_data %>%
+  filter(time<=3600) %>% 
+  ggplot(aes(x = time)) + 
+  geom_histogram(aes(fill = event), center = 60, closed = "left", breaks = seq(0, 3600, 120)) +
+  theme_reach() +
+  scale_fill_brewer(palette = "Paired") +
+  geom_vline(xintercept = 1200) +
+  geom_vline(xintercept = 2400) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 20)) +
+  facet_grid(event ~., margins = TRUE, scales = "free_y") +
+  labs(x = "Time (seconds)",
+       y = "Count",
+       title = "Different Event Frequencies",
+       subtitle = "GOAL = goal, MISS = missed net, SHOT = shot on target") 
+```
+
+---
+
+### Clustering Hockey Players Based on Shot Distance and Shot Angle
+
+```{r graph-4, fig.height=6.5, fig.width = 14, echo = FALSE, fig.align='center'}
+player_shot_stats <- playoff_shot_data %>%
+  group_by(shooterName) %>%
+  summarize(shots = n(),
+            avg_shot_distance = mean(shotDistance, na.rm = T),
+            avg_shot_angle = mean(shotAngle, na.rm = T)) %>%
+  filter(shots >= 10)
+
+hockey_player_dist <- dist(dplyr::select(player_shot_stats,
+                                  avg_shot_distance, avg_shot_angle))
+
+hockey_complete_hclust <- hclust(hockey_player_dist, method = "complete")
+
+player_shot_stats %>%
+  mutate(Cluster = as.factor(cutree(hockey_complete_hclust, k = 5))) %>%
+  ggplot(aes(x = avg_shot_distance, y = avg_shot_angle,
+             color = Cluster)) +
+  geom_jitter(alpha = 0.7, size = 4) + 
+  scale_fill_brewer(palette = "Paired") +
+  theme_reach() +
+  labs(x = "Average Shot Distance",
+       y = "Average Shot Angle",
+       fill = "Cluster") +
+  theme(legend.position = "bottom")
+```
+
+---
+
+### Hockey Position Groups
+
+```{r out.width='90%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://www.hockeymonkey.com/media/wysiwyg/Hockey/guides/diagram-of-hockey-positions_2_.png")
+```
+
+---
+
+## Conclusions
+
+* The data shows the bulk of players will shoot between 16 and 42 seconds of coming on ice. 
+
+* We found shots closer to the goal generate more rebounds: 50% of rebounds occur while the shot is taken within 25 feet of the goal while non-rebounds happen 50% of the time within 35 feet. 
+
+* Based on period and time, there are disparities between when players shoot and where those shots end up.
+
+### Limitations
+
+* This should not represent the NHL as a whole as this is just a playoff hockey dataset so it's a small sample size. 
+
+* Additionally, players might play differently in the playoffs than regular season so no definitive conclusions should be made.
+
+#### Feel free to ask any questions! 
+---
+
+## Appendix
+
+```{r appendix, warning = FALSE, message = FALSE}
+# Load in the data
+library(tidyverse)
+playoff_shot_data <- read_csv("http://www.stat.cmu.edu/cmsac/sure/2021/materials/data/xy_examples/moneypuck_shots_2020.csv") %>%
+  dplyr::filter(isPlayoffGame == 1)
+
+# Now only select columns to work with for this task:
+playoff_shot_data <- playoff_shot_data %>%
+  dplyr::select(
+    shooterPlayerId, shooterName, team, shooterLeftRight, 
+    shooterTimeOnIce, shooterTimeOnIceSinceFaceoff,
+    event, location, shotType, shotAngle, shotAnglePlusRebound, 
+    shotDistance, shotOnEmptyNet, shotRebound, shotRush, 
+    shotWasOnGoal, shotGeneratedRebound, shotGoalieFroze,
+    arenaAdjustedShotDistance, 
+    arenaAdjustedXCord, arenaAdjustedYCord,
+    goalieIdForShot, goalieNameForShot,
+    teamCode, isHomeTeam, homeSkatersOnIce, awaySkatersOnIce,
+    game_id, homeTeamCode, awayTeamCode, homeTeamGoals,
+    awayTeamGoals, time, period)
+```
+
+

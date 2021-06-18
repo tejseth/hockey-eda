@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Exploratory Data Analysis: Hockey</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nicole Tucker" />
+    <meta name="author" content="Ruby Wu" />
+    <meta name="author" content="Tej Seth" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Exploratory Data Analysis: Hockey
+### Nicole Tucker
+### Ruby Wu
+### Tej Seth
+### June 17th, 2021
+
+---
+
+
+
+
+
+
+## The Moneypuck Dataset
+
+
+
+Loaded in a dataset of all the shots in the 2021 Stanley Cup Playoffs from [`moneypuck`](http://www.stat.cmu.edu/cmsac/sure/2021/materials/data/xy_examples/moneypuck_shots_2020.csv)
+
+
+
+
+* There's 36 columns of 5,121 shots taken
+
+* Each row and observation is a singular shot taken during the 2021 Stanley Cup Playoffs
+
+* Categorical variables: shooterName, event, shotGeneratedRebound
+
+* Continuous variables: shooterTimeOnIce, shotAngle, shotDistance, tim
+
+<div id="augupkagul" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#augupkagul .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#augupkagul .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#augupkagul .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#augupkagul .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#augupkagul .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#augupkagul .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#augupkagul .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#augupkagul .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#augupkagul .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#augupkagul .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#augupkagul .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#augupkagul .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#augupkagul .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#augupkagul .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#augupkagul .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#augupkagul .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#augupkagul .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#augupkagul .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#augupkagul .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#augupkagul .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#augupkagul .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#augupkagul .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#augupkagul .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#augupkagul .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#augupkagul .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#augupkagul .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#augupkagul .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#augupkagul .gt_left {
+  text-align: left;
+}
+
+#augupkagul .gt_center {
+  text-align: center;
+}
+
+#augupkagul .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#augupkagul .gt_font_normal {
+  font-weight: normal;
+}
+
+#augupkagul .gt_font_bold {
+  font-weight: bold;
+}
+
+#augupkagul .gt_font_italic {
+  font-style: italic;
+}
+
+#augupkagul .gt_super {
+  font-size: 65%;
+}
+
+#augupkagul .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 65%;
+}
+</style>
+<table class="gt_table">
+  
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">shooterName</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">shooterTimeOnIce</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">event</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">shotType</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">shotAngle</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">shotDistance</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1">teamCode</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">time</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1">period</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left">David Pastrnak</td>
+<td class="gt_row gt_right">25</td>
+<td class="gt_row gt_left">MISS</td>
+<td class="gt_row gt_left">WRAP</td>
+<td class="gt_row gt_right">68.198591</td>
+<td class="gt_row gt_right">10.77033</td>
+<td class="gt_row gt_left">BOS</td>
+<td class="gt_row gt_right">25</td>
+<td class="gt_row gt_right">1</td></tr>
+    <tr><td class="gt_row gt_left">Patrice Bergeron</td>
+<td class="gt_row gt_right">35</td>
+<td class="gt_row gt_left">MISS</td>
+<td class="gt_row gt_left">TIP</td>
+<td class="gt_row gt_right">29.744881</td>
+<td class="gt_row gt_right">32.24903</td>
+<td class="gt_row gt_left">BOS</td>
+<td class="gt_row gt_right">35</td>
+<td class="gt_row gt_right">1</td></tr>
+    <tr><td class="gt_row gt_left">John Carlson</td>
+<td class="gt_row gt_right">18</td>
+<td class="gt_row gt_left">SHOT</td>
+<td class="gt_row gt_left">WRIST</td>
+<td class="gt_row gt_right">-28.767649</td>
+<td class="gt_row gt_right">58.18075</td>
+<td class="gt_row gt_left">WSH</td>
+<td class="gt_row gt_right">162</td>
+<td class="gt_row gt_right">1</td></tr>
+    <tr><td class="gt_row gt_left">Jake DeBrusk</td>
+<td class="gt_row gt_right">25</td>
+<td class="gt_row gt_left">MISS</td>
+<td class="gt_row gt_left">WRIST</td>
+<td class="gt_row gt_right">46.548158</td>
+<td class="gt_row gt_right">26.17250</td>
+<td class="gt_row gt_left">BOS</td>
+<td class="gt_row gt_right">268</td>
+<td class="gt_row gt_right">1</td></tr>
+    <tr><td class="gt_row gt_left">David Pastrnak</td>
+<td class="gt_row gt_right">6</td>
+<td class="gt_row gt_left">SHOT</td>
+<td class="gt_row gt_left">WRIST</td>
+<td class="gt_row gt_right">-5.710593</td>
+<td class="gt_row gt_right">10.04988</td>
+<td class="gt_row gt_left">BOS</td>
+<td class="gt_row gt_right">288</td>
+<td class="gt_row gt_right">1</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+---
+
+### Player's Shoot Mostly Between 16 and 42 Seconds On Ice
+
+&lt;img src="hockey-presentation_files/figure-html/graph-1-1.png" width="1008" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Shots Closer to the Goal Generate More Rebounds
+
+&lt;img src="hockey-presentation_files/figure-html/graph-2-1.png" width="1008" style="display: block; margin: auto;" /&gt;
+
+---
+
+### How Time and Periods Affect Event Outcomes
+
+&lt;img src="hockey-presentation_files/figure-html/graph-3-1.png" width="1008" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Clustering Hockey Players Based on Shot Distance and Shot Angle
+
+&lt;img src="hockey-presentation_files/figure-html/graph-4-1.png" width="1008" style="display: block; margin: auto;" /&gt;
+
+---
+
+### Hockey Position Groups
+
+&lt;img src="https://www.hockeymonkey.com/media/wysiwyg/Hockey/guides/diagram-of-hockey-positions_2_.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Conclusions
+
+* The data shows the bulk of players will shoot between 16 and 42 seconds of coming on ice. 
+
+* We found shots closer to the goal generate more rebounds: 50% of rebounds occur while the shot is taken within 25 feet of the goal while non-rebounds happen 50% of the time within 35 feet. 
+
+* Based on period and time, there are disparities between when players shoot and where those shots end up.
+
+### Limitations
+
+* This should not represent the NHL as a whole as this is just a playoff hockey dataset so it's a small sample size. 
+
+* Additionally, players might play differently in the playoffs than regular season so no definitive conclusions should be made.
+
+#### Feel free to ask any questions! 
+---
+
+## Appendix
+
+
+```r
+# Load in the data
+library(tidyverse)
+playoff_shot_data &lt;- read_csv("http://www.stat.cmu.edu/cmsac/sure/2021/materials/data/xy_examples/moneypuck_shots_2020.csv") %&gt;%
+  dplyr::filter(isPlayoffGame == 1)
+
+# Now only select columns to work with for this task:
+playoff_shot_data &lt;- playoff_shot_data %&gt;%
+  dplyr::select(
+    shooterPlayerId, shooterName, team, shooterLeftRight, 
+    shooterTimeOnIce, shooterTimeOnIceSinceFaceoff,
+    event, location, shotType, shotAngle, shotAnglePlusRebound, 
+    shotDistance, shotOnEmptyNet, shotRebound, shotRush, 
+    shotWasOnGoal, shotGeneratedRebound, shotGoalieFroze,
+    arenaAdjustedShotDistance, 
+    arenaAdjustedXCord, arenaAdjustedYCord,
+    goalieIdForShot, goalieNameForShot,
+    teamCode, isHomeTeam, homeSkatersOnIce, awaySkatersOnIce,
+    game_id, homeTeamCode, awayTeamCode, homeTeamGoals,
+    awayTeamGoals, time, period)
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"slideNumberFormat": "%current%",
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
